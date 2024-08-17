@@ -80,7 +80,13 @@ const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === '/dogs') {
       const { name, age } = req.body;
       // Your code here
-      return res.end();
+      const dogId = getNewDogId();
+      const dog = { dogId, name, age: parseInt(age) };
+
+      dogs.push(dog);
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = 201;
+      return res.end(JSON.stringify(dog));
     }
 
     // PUT or PATCH /dogs/:dogId
