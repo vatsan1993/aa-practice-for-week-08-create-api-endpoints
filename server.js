@@ -98,6 +98,14 @@ const server = http.createServer((req, res) => {
       if (urlParts.length === 3) {
         const dogId = urlParts[2];
         // Your code here
+        const { name, age } = req.body;
+        let dog = dogs.find((element) => element.dogId == dogId);
+        if (dog) {
+          dog.name = name;
+          dog.age = age;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(dog));
+        }
       }
       return res.end();
     }
