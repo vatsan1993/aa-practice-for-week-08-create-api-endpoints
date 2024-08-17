@@ -3,9 +3,9 @@ const http = require('http');
 const dogs = [
   {
     dogId: 1,
-    name: "Fluffy",
-    age: 2
-  }
+    name: 'Fluffy',
+    age: 2,
+  },
 ];
 
 let nextDogId = 2;
@@ -20,23 +20,24 @@ const server = http.createServer((req, res) => {
   console.log(`${req.method} ${req.url}`);
 
   // assemble the request body
-  let reqBody = "";
-  req.on("data", (data) => {
+  let reqBody = '';
+  req.on('data', (data) => {
     reqBody += data;
   });
 
-  req.on("end", () => { // request is finished assembly the entire request body
+  req.on('end', () => {
+    // request is finished assembly the entire request body
     // Parsing the body of the request depending on the Content-Type header
     if (reqBody) {
       switch (req.headers['content-type']) {
-        case "application/json":
+        case 'application/json':
           req.body = JSON.parse(reqBody);
           break;
-        case "application/x-www-form-urlencoded":
+        case 'application/x-www-form-urlencoded':
           req.body = reqBody
-            .split("&")
-            .map((keyValuePair) => keyValuePair.split("="))
-            .map(([key, value]) => [key, value.replace(/\+/g, " ")])
+            .split('&')
+            .map((keyValuePair) => keyValuePair.split('='))
+            .map(([key, value]) => [key, value.replace(/\+/g, ' ')])
             .map(([key, value]) => [key, decodeURIComponent(value)])
             .reduce((acc, [key, value]) => {
               acc[key] = value;
@@ -54,8 +55,8 @@ const server = http.createServer((req, res) => {
     // GET /dogs
     if (req.method === 'GET' && req.url === '/dogs') {
       // Your code here
-
-      return res.end();
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify(dogs));
     }
 
     // GET /dogs/:dogId
@@ -64,6 +65,13 @@ const server = http.createServer((req, res) => {
       if (urlParts.length === 3) {
         const dogId = urlParts[2];
         // Your code here
+        let dog = dogs.find((element) => element.dogId == dogId);
+        console.log(dog);
+
+        if (dog !== undefined) {
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify(dog));
+        }
       }
       return res.end();
     }
@@ -76,7 +84,10 @@ const server = http.createServer((req, res) => {
     }
 
     // PUT or PATCH /dogs/:dogId
-    if ((req.method === 'PUT' || req.method === 'PATCH')  && req.url.startsWith('/dogs/')) {
+    if (
+      (req.method === 'PUT' || req.method === 'PATCH') &&
+      req.url.startsWith('/dogs/')
+    ) {
       const urlParts = req.url.split('/');
       if (urlParts.length === 3) {
         const dogId = urlParts[2];
@@ -100,13 +111,11 @@ const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', 'application/json');
     return res.end('Endpoint not found');
   });
-
 });
 
-
 if (require.main === module) {
-    const port = 8000;
-    server.listen(port, () => console.log('Server is listening on port', port));
+  const port = 8000;
+  server.listen(port, () => console.log('Server is listening on port', port));
 } else {
-    module.exports = server;
+  module.exports = server;
 }
